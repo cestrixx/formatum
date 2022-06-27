@@ -46,4 +46,12 @@ console.log(Format.stringToUnit("21°36'49.466846763554315\" W", Units.Longitude
 console.log(Format.stringToUnit("21°36'49.466846763554315\" E", Units.Longitude)) // 21°36'49.4668" E
 // Distancia
 console.log(Format.stringToUnit("1482.518", Units.Meters)) // 1482.52 m
+
+// String or Number To Unit(String)
+console.log(Format.valueToUnit("21.61374079077", Units.DegreeMinuteSecond)) // 21°36'49.47\"
+console.log(Format.valueToUnit(21.61374079077, Units.DegreeMinuteSecond)) // 21°36'49.47\"
+
+// String or Number To Degree(Number)
+console.log(Format.valueToDegree(21.613740790767654)) // 21.61374079077
+console.log(Format.valueToDegree("21.61374079077")) // 21.61374079077
 ```
