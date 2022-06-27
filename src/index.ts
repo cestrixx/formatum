@@ -13,6 +13,15 @@ export enum Units {
 }
 
 export class Format {
+    static valueToUnit(value: string | number, outputUnit: Units, outputFormat: string | null = null): string {
+        switch (typeof value) {
+            case "number": value = this.degreeToDegreeString(value, "%.20f"); break;
+            case "string": break;
+            default: throw new Error("Tipo de valor invalido!");
+        }
+        return this.stringToUnit(value, outputUnit, outputFormat);
+    }
+
     static stringToUnit(value: string, outputUnit: Units, outputFormat: string|null = null): string {
         const inputUnit: Units = this.identifyUnit(value);
         let degreeValue: number;
@@ -40,8 +49,13 @@ export class Format {
         return resultValue;
     }
 
+    static valueToDegree(value: string | number): number {
+        const str: string = this.valueToUnit(value, Units.Degree, "%.20f");
+        return this.stringToDegree(str);
+    }
+
     static stringToDegree(value: string): number {
-        return parseFloat(this.stringToUnit(value, Units.Degree, "%.11f"));
+        return Number(this.stringToUnit(value, Units.Degree, "%.11f"));
     }
 
     static stringRadianToDegree(value: string): number {
