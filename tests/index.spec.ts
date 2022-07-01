@@ -118,11 +118,17 @@ describe("Format", () => {
     it("String To Meters", () => {
         expect(Format.stringToUnit("1482.518", Units.Meters)).toEqual("1482.52 m")
     });
-    it("String Value To String", () => {
+    it("String Value To String(DMS)", () => {
         expect(Format.valueToUnit("21.61374079077", Units.DegreeMinuteSecond)).toEqual("21°36'49.47\"")
     });
-    it("Numeric Value To String", () => {
+    it("Numeric Value To String(DMS)", () => {
         expect(Format.valueToUnit(21.61374079077, Units.DegreeMinuteSecond)).toEqual("21°36'49.47\"")
+    });
+    it("String Value To String(METERS)", () => {
+        expect(Format.valueToUnit("21.61374079077", Units.Meters)).toEqual("21.61 m")
+    });
+    it("Numeric Value To String(METERS)", () => {
+        expect(Format.valueToUnit(21.61374079077, Units.Meters)).toEqual("21.61 m")
     });
     it("Numeric Value To Degree", () => {
         expect(Format.valueToDegree(21.613740790767654)).toEqual(21.61374079077)
