@@ -114,10 +114,10 @@ export class Format {
 
     static radianFormat = "%.2f"
     static degreeFormat = "%.2f"
-    static degreeMinuteFormat = "%2d°%.2f'"
-    static degreeMinuteSecondFormat = "%d°%d'%.2f\""
-    static rumoFormat = "%d°%d'%.2f\""
-    static latlonFormat = "%d°%d'%.2f\" %s"
+    static degreeMinuteFormat = "%02d°%.2f'"
+    static degreeMinuteSecondFormat = "%02d°%02d'%.2f\""
+    static rumoFormat = "%02d°%02d'%.2f\""
+    static latlonFormat = "%02d°%02d'%.2f\" %s"
     static metersFormat = "%.2f m"
 
     static degreeToRadianString(value: number, format: string|null = null): string {
