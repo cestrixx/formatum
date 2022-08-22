@@ -31,6 +31,13 @@ console.log(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinut
 console.log(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinuteSecond)) // 21°36'49.4668"
 console.log(Format.stringToUnit("21 36 49.4668467635", Units.DegreeMinuteSecond)) // 21°36'49.4668"
 console.log(Format.stringToUnit("21 36 49.4668467635", Units.DegreeMinuteSecond)) // 21°36'49.4668"
+
+// Degree to DegreeMinuteSecond
+console.log(Format.stringToUnit("35.3535", Units.DegreeMinuteSecond)) // 35°21'12.6"
+// DegreeMinute to DegreeMinuteSecond
+console.log(Format.stringToUnit("35 35.35", Units.DegreeMinuteSecond)) // 35°35'21.21"
+// DegreeMinuteSeconds to DegreeMinuteSecond
+console.log(Format.stringToUnit("35 35 35", Units.DegreeMinuteSecond)) // 35°35'35.00"
 // Rumo
 console.log(Format.stringToUnit("21°36'49.466846763554315\"", Units.Rumo)) // 21°36'49.4668" NE
 console.log(Format.stringToUnit("120°36'49.466846763554315\"", Units.Rumo)) // 59°23'10.5331" SE
@@ -46,6 +53,7 @@ console.log(Format.stringToUnit("21°36'49.466846763554315\" W", Units.Longitude
 console.log(Format.stringToUnit("21°36'49.466846763554315\" E", Units.Longitude)) // 21°36'49.4668" E
 // Distancia
 console.log(Format.stringToUnit("1482.518", Units.Meters)) // 1482.52 m
+console.log(Format.stringToUnit("100,555", Units.Meters)) //100.56 m
 
 // String or Number To Unit(String)
 console.log(Format.valueToUnit("21.61374079077", Units.DegreeMinuteSecond)) // 21°36'49.47\"

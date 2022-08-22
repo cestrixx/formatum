@@ -136,4 +136,10 @@ describe("Format", () => {
     it("String Value To Degree", () => {
         expect(Format.valueToDegree("21.61374079077")).toEqual(21.61374079077)
     });
+    it("String Meters To Meters", () => {
+        expect(Format.stringToUnit("100,555", Units.Meters)).toEqual("100.56 m")
+    });
+    it("String Value(DM) To String(DMS)", () => {
+        expect(Format.stringToUnit("35 35.35", Units.DegreeMinuteSecond)).toEqual("35°35'21.00\"")
+    });
 });
