@@ -1,4 +1,4 @@
-import { Format, Units } from "../src/index";
+import { Format, Units, degreeToDm, degreeToDms, dmDegrees, dmsDegrees } from "../src/index";
 
 describe("Format", () => {
     it("Identify Unit : Degree", () => {
@@ -31,9 +31,6 @@ describe("Format", () => {
     it("Identify Unit : Rumo NW", () => {
         expect(Format.identifyUnit("60°36'49.4668467635\"NW")).toEqual(Units.Rumo)
     });
-
-    // 0.37723094047149835
-
     it("String Degree To Degree", () => {
         expect(Format.stringDegreeToDegree("21.613740790767654")).toEqual(21.613740790767654);
     });
@@ -50,7 +47,7 @@ describe("Format", () => {
         expect(Format.degreeToDegreeMinuteString(21.613740790767654, "%02d°%.10f'")).toEqual("21°36.8244474461'")
     });
     it("Degree To Degree Minute Second String", () => {
-        expect(Format.degreeToDegreeMinuteSecondString(21.613740790767654, "%02d°%02d'%.10f\"")).toEqual("21°36'49.4668467635\"")
+        expect(Format.degreeToDegreeMinuteSecondString(21.613740790767654, "%02d°%02d'%02d.%02d\"")).toEqual("21°36'49.47\"") //4668467635\"")
     });
     it("String To Radian", () => {
         expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.Radian, "%.10f")).toEqual("0.3772309405")
@@ -65,16 +62,16 @@ describe("Format", () => {
         expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinute, "%02d°%.10f'")).toEqual("21°36.8244474461'")
     });
     it("String To Degree Minute Second", () => {
-        expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("21°36'49.4668467635\"")
+        expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("21°36'49.47\"") //4668467635\"")
     });
     it("String To Degree Minute Second [-]", () => {
-        expect(Format.stringToUnit("-21°36'49.466846763554315\"", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("-21°36'49.4668467635\"")
+        expect(Format.stringToUnit("-21°36'49.466846763554315\"", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("-21°36'49.47\"") //4668467635\"")
     });
     it("String To Degree Minute Second [-]", () => {
-        expect(Format.stringToUnit("21°36'49.466846763554315\"S", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("-21°36'49.4668467635\"")
+        expect(Format.stringToUnit("21°36'49.466846763554315\"S", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("-21°36'49.47\"") //4668467635\"")
     });
     it("String To Degree Minute Second", () => {
-        expect(Format.stringToUnit("21 36 49.4668467635", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("21°36'49.4668467635\"")
+        expect(Format.stringToUnit("21 36 49.4668467635", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("21°36'49.47\"") //4668467635\"")
     });
     it("String To Degree Minute Second", () => {
         expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.DegreeMinuteSecond)).toEqual("21°36'49.47\"")
@@ -92,37 +89,37 @@ describe("Format", () => {
         expect(Format.stringToUnit("21°36'49.466846763554315\" E", Units.Longitude)).toEqual("21°36'49.47\" E")
     });
     it("String To Rumo NE", () => {
-        expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%.10f\"")).toEqual("21°36'49.4668467635\" NE")
+        expect(Format.stringToUnit("21°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%02d.%02d\"")).toEqual("21°36'49.47\" NE") //4668467635\" NE")
     });
     it("String To Rumo SE", () => {
-        expect(Format.stringToUnit("120°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%.10f\"")).toEqual("59°23'10.5331532365\" SE")
+        expect(Format.stringToUnit("120°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%02d.%02d\"")).toEqual("59°23'10.53\" SE") //31532365\" SE")
     });
     it("String To Rumo SW", () => {
-        expect(Format.stringToUnit("215°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%.10f\"")).toEqual("35°36'49.4668467635\" SW")
+        expect(Format.stringToUnit("215°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%02d.%02d\"")).toEqual("35°36'49.47\" SW") //4668467635\" SW")
     });
     it("String To Rumo NW", () => {
-        expect(Format.stringToUnit("300°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%.10f\"")).toEqual("59°23'10.5331532363\" NW")
+        expect(Format.stringToUnit("300°36'49.466846763554315\"", Units.Rumo, "%02d°%02d'%02d.%02d\"")).toEqual("59°23'10.53\" NW") //31532363\" NW")
     });
     it("String[NE] To Degree Minute Second", () => {
-        expect(Format.stringToUnit("21°36'49.4668467635\" NE", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("21°36'49.4668467635\"")
+        expect(Format.stringToUnit("21°36'49.4668467635\" NE", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("21°36'49.47\"") //4668467635\"")
     });
     it("String[SE] To Degree Minute Second", () => {
-        expect(Format.stringToUnit("59°23'10.5331532364\" SE", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("120°36'49.4668467636\"")
+        expect(Format.stringToUnit("59°23'10.5331532364\" SE", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("120°36'49.47\"") //4668467636\"")
     });
     it("String[SW] To Degree Minute Second", () => {
-        expect(Format.stringToUnit("35°36'49.4668467636\" SW", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("215°36'49.4668467636\"")
+        expect(Format.stringToUnit("35°36'49.4668467636\" SW", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("215°36'49.47\"") //4668467636\"")
     });
     it("String[NW] To Degree Minute Second", () => {
-        expect(Format.stringToUnit("59°23'10.5331532363\" NW", Units.DegreeMinuteSecond, "%02d°%02d'%.10f\"")).toEqual("300°36'49.4668467636\"")
+        expect(Format.stringToUnit("59°23'10.5331532363\" NW", Units.DegreeMinuteSecond, "%02d°%02d'%02d.%02d\"")).toEqual("300°36'49.47\"") //4668467636\"")
     });
     it("String To Meters", () => {
         expect(Format.stringToUnit("1482.518", Units.Meters)).toEqual("1482.52 m")
     });
     it("String Value To String(DMS)", () => {
-        expect(Format.valueToUnit("21.61374079077", Units.DegreeMinuteSecond)).toEqual("21°36'49.47\"")
+        expect(Format.valueToUnit("21.61374079077", Units.DegreeMinuteSecond)).toEqual("22°01'37.41\"")
     });
     it("Numeric Value To String(DMS)", () => {
-        expect(Format.valueToUnit(21.61374079077, Units.DegreeMinuteSecond)).toEqual("21°36'49.47\"")
+        expect(Format.valueToUnit(21.61374079077, Units.DegreeMinuteSecond)).toEqual("22°01'37.41\"")
     });
     it("String Value To String(METERS)", () => {
         expect(Format.valueToUnit("21.61374079077", Units.Meters)).toEqual("21.61 m")
@@ -131,15 +128,39 @@ describe("Format", () => {
         expect(Format.valueToUnit(21.61374079077, Units.Meters)).toEqual("21.61 m")
     });
     it("Numeric Value To Degree", () => {
-        expect(Format.valueToDegree(21.613740790767654)).toEqual(21.61374079077)
+        expect(Format.valueToDegree(21.613740790767654, Units.Degree)).toEqual(21.613740790767654)
     });
     it("String Value To Degree", () => {
-        expect(Format.valueToDegree("21.61374079077")).toEqual(21.61374079077)
+        expect(Format.valueToDegree("21.61374079077", Units.Degree)).toEqual(21.61374079077)
     });
     it("String Meters To Meters", () => {
         expect(Format.stringToUnit("100,555", Units.Meters)).toEqual("100.56 m")
     });
-    it("String Value(DM) To String(DMS)", () => {
-        expect(Format.stringToUnit("35 35.35", Units.DegreeMinuteSecond)).toEqual("35°35'21.00\"")
+    it("String Value(D) To String(DMS)", () => {
+        expect(Format.stringToUnit("35 35.35", Units.DegreeMinuteSecond)).toEqual("35°35'35.00\"")
+    });
+    it("String Value(D) To String(DMS)", () => {
+        expect(Format.stringToUnit("35.3535", Units.DegreeMinuteSecond)).toEqual("35°35'35.00\"")
+    });
+    it("String Value(D) To String(DMS)", () => {
+        expect(Format.stringToUnit("35 3535", Units.DegreeMinuteSecond)).toEqual("35°35'35.00\"")
+    });
+    it("String Value(D) To String(DMS)", () => {
+        expect(Format.stringToUnit("00 3535", Units.DegreeMinuteSecond)).toEqual("00°35'35.00\"")
+    });
+    it("String Value(D) To String(DMS)", () => {
+        expect(Format.stringToUnit("00 0035", Units.DegreeMinuteSecond)).toEqual("00°00'35.00\"")
+    });
+    it("String Value(D) To String(DMS)", () => {
+        //console.log(degreeToDms(dmsDegrees("00 0000.35"), "%02d°%02d'%02d.%d\""));
+        expect(Format.stringToUnit("00 0000.35", Units.DegreeMinuteSecond)).toEqual("00°00'00.35\"")
     });
 });
+
+/*
+
+35° 35' 35.12345678899480363000"
+= 35° + 35'/60 + 35.12345678899480363000"/3600
+= 35.59309°
+
+*/
