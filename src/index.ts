@@ -60,7 +60,7 @@ export class Format {
             default: outputFormat = null; break;
         }
         const str: string = this.valueToUnit(value, inputUnit, outputFormat);
-        return this.stringToDegree(str, Units.Degree);
+        return this.stringToDegree(str, inputUnit);
     }
 
     static stringToDegree(value: string, inputUnit: Units): number {
@@ -83,7 +83,7 @@ export class Format {
         let str = value;
         const isNegative = /^-|[WSO]$/i.test(str);
         const isRumo = str.includes("NE") || str.includes("SE") || str.includes("SW") || str.includes("NW");
-        str = str.trim();
+        str = str.replace(/^\s+|\s+$/gm, '');
         if (isNegative) str = str.replace(/^-|[WSO]$/i, '');
         if (isRumo) str = str.replace(/[NSEW]+$/i, '');
         const data = dmsDms(str);
@@ -102,7 +102,7 @@ export class Format {
     }
 
     static stringRadianToDegree(value: string): number {
-        const realValue = value.trim().replace(",", ".").replace(/^-/, '');
+        const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace(/^-/, '');
         const values = /^([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
         if (values === null)
             throw new Error("Valor invalido!")
@@ -112,7 +112,7 @@ export class Format {
     }
 
     static stringDegreeToDegree(value: string): number {
-        const realValue = value.trim().replace(",", ".").replace("°", "").replace(/^-/, '');
+        const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace("°", "").replace(/^-/, '');
         const values = /^([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
         if (values === null)
             throw new Error("Valor invalido!")
@@ -122,7 +122,7 @@ export class Format {
     }
 
     static stringDegreeMinuteToDegree(value: string): number {
-        const realValue = value.trim().replace(",", ".").replace(/^-/, '');
+        const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace(/^-/, '');
         const values = /^([0-9]+)\D+([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
         if (values === null)
             throw new Error("Valor invalido!")
@@ -132,7 +132,7 @@ export class Format {
     }
 
     static stringDegreeMinuteSecondToDegree(value: string): number {
-        const realValue = value.trim().replace(",", ".").replace(/^-/, '');
+        const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace(/^-/, '');
         const values = /^([0-9]+)\D+([0-9]+)\D+([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
         if (values === null)
             throw new Error("Valor invalido!")
@@ -142,7 +142,7 @@ export class Format {
     }
 
     static stringRumoToDegree(value: string): number {
-        const rumoValue = value.trim().replace(/[NSEW]+$/i, '');
+        const rumoValue = value.replace(/^\s+|\s+$/gm, '').replace(/[NSEW]+$/i, '');
         let degreeValue = Number(this.stringToUnit(rumoValue, Units.Degree, "%.17f"));
         const values = /([NE]{2})?([SE]{2})?([SW]{2})?([NW]{2})?$/i.exec(value);
         const direction = values === null ? "" : values[0];
@@ -280,7 +280,7 @@ export class Format {
     }
 
     static identifyUnit(value: string): Units {
-        value = value.trim().replace(",", ".");
+        value = value.replace(/^\s+|\s+$/gm, '').replace(",", ".");
         let result: Units
         if (value.includes("NE") || value.includes("SE") || value.includes("SW") || value.includes("NW")) {
             result = Units.Rumo;
@@ -451,7 +451,7 @@ export function dmDegrees(str: string) {
     if (Negative) value = value.substring(value.indexOf('-') + 1);
     if (value.indexOf('+') >= 0) value = value.substring(value.indexOf('+') + 1);
 
-    value = value.trim();
+    value = value.replace(/^\s+|\s+$/gm, '');
     if (value.length > 0) {
         // procura o primeiro separador
         while ((Sm < value.length) && (value[Sm] >= '0' && value[Sm] <= '9')) Sm++;

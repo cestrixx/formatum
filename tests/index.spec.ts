@@ -155,6 +155,14 @@ describe("Format", () => {
         //console.log(degreeToDms(dmsDegrees("00 0000.35"), "%02d°%02d'%02d.%d\""));
         expect(Format.stringToUnit("00 0000.35", Units.DegreeMinuteSecond)).toEqual("00°00'00.35\"")
     });
+    it("String Value(D) To String(DMS)", () => {
+        //console.log(degreeToDms(dmsDegrees("00 0000.35"), "%02d°%02d'%02d.%d\""));
+        expect(Format.valueToDegree(-47.7969, Units.DegreeMinuteSecond)).toEqual(-48.33583333333333)
+    });
+    it("String Value(D) To String(DMS)", () => {
+        //console.log(degreeToDms(dmsDegrees("00 0000.35"), "%02d°%02d'%02d.%d\""));
+        expect(Format.valueToDegree(-15.7812, Units.DegreeMinuteSecond)).toEqual(-16.303333333333335)
+    });
 });
 
 /*
