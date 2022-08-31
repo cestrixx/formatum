@@ -9,7 +9,7 @@ import {
     degreesStringToDegrees,
     degreesToDegreesString,
     degreesToRadianString,
-    degreesToMetersString,
+    distanceToMetersString,
 } from "./angle"
 
 export enum Units {
@@ -24,25 +24,78 @@ export enum Units {
     Meters
 }
 
+export interface Formats {
+    radianFormat?: string;
+    degreeFormat?: string;
+    degreeMinuteFormat?: string;
+    degreeMinuteSecondFormat?: string;
+    rumoFormat?: string;
+    latlonFormat?: string;
+    metersFormat?: string;
+}
+
 export class Format {
-    static valueToValue(value: string | number, inputUnit: Units, outputUnit: Units, outputFormat: string | null = null) {
-        const degree = this.valueToDegree(value, inputUnit);
-        return this.degreeToValue(degree, outputUnit, outputFormat);
+    static radianFormat = "%.2f";
+    static degreeFormat = "%.2f";
+    static degreeMinuteFormat = "%02d°%.2f'";
+    static degreeMinuteSecondFormat = "%02d°%02d'%02d.%02d\"";
+    static rumoFormat = "%02d°%02d'%02d.%02d\"";
+    static latlonFormat = "%02d°%02d'%02d.%02d\"";
+    static metersFormat = "%.2f m";
+
+    static setFormats(formats: Formats): void {
+        if (formats.radianFormat && formats.radianFormat.length > 0) this.radianFormat = formats.radianFormat;
+        if (formats.degreeFormat && formats.degreeFormat.length > 0) this.degreeFormat = formats.degreeFormat;
+        if (formats.degreeMinuteFormat && formats.degreeMinuteFormat.length > 0) this.degreeMinuteFormat = formats.degreeMinuteFormat;
+        if (formats.degreeMinuteSecondFormat && formats.degreeMinuteSecondFormat.length > 0) this.degreeMinuteSecondFormat = formats.degreeMinuteSecondFormat;
+        if (formats.rumoFormat && formats.rumoFormat.length > 0) this.rumoFormat = formats.rumoFormat;
+        if (formats.latlonFormat && formats.latlonFormat.length > 0) this.latlonFormat = formats.latlonFormat;
+        if (formats.metersFormat && formats.metersFormat.length > 0) this.metersFormat = formats.metersFormat;
     }
 
-    static degreeToDegree(value: string | number) {
-        return this.valueToDegree(value, Units.Degree);
+    static getFormats(): Formats {
+        return {
+            radianFormat: Format.radianFormat,
+            degreeFormat: Format.degreeFormat,
+            degreeMinuteFormat: Format.degreeMinuteFormat,
+            degreeMinuteSecondFormat: Format.degreeMinuteSecondFormat,
+            rumoFormat: Format.rumoFormat,
+            latlonFormat: Format.latlonFormat,
+            metersFormat: Format.metersFormat
+        };
     }
 
-    static degreeMinuteToDegree(value: string | number) {
-        return this.valueToDegree(value, Units.DegreeMinute);
+    static valueToValue(value: string | number, inputUnit: Units, outputUnit: Units, outputFormat: string | null = null): string {
+        let resultValue;
+        switch (inputUnit) {
+            case Units.Degree:
+            case Units.Latitude:
+            case Units.Longitude:
+            case Units.DegreeMinute:
+            case Units.DegreeMinuteSecond:
+            case Units.Radian:
+            case Units.Rumo: resultValue = this.angleToValue(this.valueToAngle(value, inputUnit), outputUnit, outputFormat); break;
+            case Units.Meters: resultValue = this.distanceToValue(this.valueToDistance(value, inputUnit), outputUnit, outputFormat); break;
+            default: resultValue = "";
+        }
+        return resultValue;
     }
 
-    static degreeMinuteSecondToDegree(value: string | number) {
-        return this.valueToDegree(value, Units.DegreeMinuteSecond);
+    static valueToDistance(value: string | number, inputUnit: Units): number {
+        switch (typeof value) {
+            case "number": value = value.toString(); break;
+            case "string": break;
+            default: throw new Error("Tipo de valor invalido!");
+        }
+        let distance;
+        switch (inputUnit) {
+            case Units.Meters: distance = degreesStringToDegrees(value); break;
+            default: throw new Error("Unidade invalida!");
+        }
+        return distance;
     }
 
-    static valueToDegree(value: string | number, inputUnit: Units) {
+    static valueToAngle(value: string | number, inputUnit: Units): number {
         switch (typeof value) {
             case "number": value = value.toString(); break;
             case "string": break;
@@ -55,7 +108,7 @@ export class Format {
             case Units.DegreeMinuteSecond: degrees = angleToDegrees(value); break;
             case Units.Radian: degrees = radianStringToDegrees(value); break;
             case Units.Rumo: degrees = angleToDegrees(value); break;
-            case Units.Meters: degrees = degreesStringToDegrees(value); break;
+            case Units.Meters: degrees = 0; break;
             case Units.Latitude: degrees = angleToDegrees(value); break;
             case Units.Longitude: degrees = angleToDegrees(value); break;
             default: degrees = 0; break;
@@ -63,85 +116,36 @@ export class Format {
         return degrees;
     }
 
-    static degreeToDegreeString(degrees: number, outputFormat: string | null = null) {
-        return this.degreeToValue(degrees, Units.Degree, outputFormat);
-    }
-    static degreeToDegreeMinuteString(degrees: number, outputFormat: string | null = null) {
-        return this.degreeToValue(degrees, Units.DegreeMinute, outputFormat);
-    }
-    static degreeToDegreeMinuteSecondString(degrees: number, outputFormat: string | null = null) {
-        return this.degreeToValue(degrees, Units.DegreeMinuteSecond, outputFormat);
-    }
-
-    static degreeToValue(degrees: number, outputUnit: Units, outputFormat: string | null = null): string {
+    static angleToValue(angle: number, outputUnit: Units, outputFormat: string | null = null): string {
+        if (!outputFormat || outputFormat.length <= 0) {
+            switch (outputUnit) {
+                case Units.Degree: outputFormat = this.degreeFormat; break;
+                case Units.DegreeMinute: outputFormat = this.degreeMinuteFormat; break;
+                case Units.DegreeMinuteSecond: outputFormat = this.degreeMinuteSecondFormat; break;
+                case Units.Radian: outputFormat = this.radianFormat; break;
+                case Units.Rumo: outputFormat = this.rumoFormat; break;
+                case Units.Meters: outputFormat = this.metersFormat; break;
+                case Units.Latitude: outputFormat = this.latlonFormat; break;
+                case Units.Longitude: outputFormat = this.latlonFormat; break;
+                default: throw new Error("Unidade invalida!");
+            }
+        }
         let value: string
         switch (outputUnit) {
-            case Units.Degree: value = degreesToDegreesString(degrees, outputFormat || "%.2f"); break;
-            case Units.DegreeMinute: value = degreesToDegreeMinuteString(degrees, outputFormat || "%02d°%02d'"); break;
-            case Units.DegreeMinuteSecond: value = degreesToDegreeMinuteSecondString(degrees, outputFormat || "%02d°%02d'%02d.%02d\""); break;
-            case Units.Radian: value = degreesToRadianString(degrees, outputFormat || "%.2f"); break;
-            case Units.Rumo: value = degreesToRumoString(degrees, outputFormat || "%02d°%02d'%02d.%02d\""); break;
-            case Units.Latitude: value = degreesToLatitudeString(degrees, outputFormat || "%02d°%02d'%02d.%02d\""); break;
-            case Units.Longitude: value = degreesToLongitudeString(degrees, outputFormat || "%02d°%02d'%02d.%02d\""); break;
-            case Units.Meters: value = degreesToMetersString(degrees, outputFormat || "%.2f m"); break;
-            default: value = ""; break;
+            case Units.Degree: value = degreesToDegreesString(angle, outputFormat); break;
+            case Units.DegreeMinute: value = degreesToDegreeMinuteString(angle, outputFormat); break;
+            case Units.DegreeMinuteSecond: value = degreesToDegreeMinuteSecondString(angle, outputFormat); break;
+            case Units.Radian: value = degreesToRadianString(angle, outputFormat); break;
+            case Units.Rumo: value = degreesToRumoString(angle, outputFormat); break;
+            case Units.Latitude: value = degreesToLatitudeString(angle, outputFormat); break;
+            case Units.Longitude: value = degreesToLongitudeString(angle, outputFormat); break;
+            case Units.Meters: throw new Error("Unidade invalida!");
+            default: throw new Error("Unidade invalida!");
         }
         return value;
     }
 
-    static valueToMetersString(value: string | number, format: string | null = null): string {
-        return this.valueToValue(value, Units.Meters, Units.Meters, format || "%.2f");
-    }
-
-    static radianFormat = "%.2f"
-    static degreeFormat = "%.2f"
-    static degreeMinuteFormat = "%02d°%.2f'"
-    static degreeMinuteSecondFormat = "%02d°%02d'%02d.%02d\""
-    static rumoFormat = "%02d°%02d'%02d.%02d\""
-    static latlonFormat = "%02d°%02d'%02d.%02d\" %s"
-    static metersFormat = "%.2f m"
-
-    static identifyUnit(value: string): Units {
-        value = value.replace(/^\s+|\s+$/gm, '').replace(",", ".");
-        let result: Units
-        if (value.includes("NE") || value.includes("SE") || value.includes("SW") || value.includes("NW")) {
-            result = Units.Rumo;
-        } else if (/rad$/i.test(value)) {
-            result = Units.Radian;
-        } else if (/d$/i.test(value)) {
-            result = Units.DegreeMinuteSecond
-        } else if (/^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.test(value)) {
-            result = Units.Degree
-        } else if (/^[\+-]?([0-9]+)\D+([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.test(value)) {
-            result = Units.DegreeMinute
-        } else if (/^[+-]?([0-9]+)\D+([0-9]+)\D+([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.test(value)) {
-            result = Units.DegreeMinuteSecond
-        } else {
-            result = Units.Unknown;
-        }
-        return result;
+    static distanceToValue(distance: number, outputUnit: Units, outputFormat: string | null = null): string {
+        return distanceToMetersString(outputUnit === Units.Meters ? distance : 0, !outputFormat || outputFormat.length <= 0 ? this.metersFormat : outputFormat);
     }
 }
-
-// console.log(dmsDegrees('353535.35'))
-// console.log(dmsDegrees('35 353535'))
-// console.log(dmsDegrees('35 35 35.35'))
-// console.log(dmsDegrees('3535.35'))
-// console.log(dmsDegrees('35 35.35'))
-// console.log(dmsDegrees('35 3535'))
-// console.log(dmsDegrees('00 3535'))
-// console.log(dmsDegrees('00 0035'))    35.123456788994645
-// console.log(dmsDegrees('00 0000.35'))
-// console.log(dmsDegrees('3535.35'))
-
-// console.log(dm(35.593089849108054, "%02d°%02d.%d'"));
-// console.log(degreeToDm(35.593089849108054, "%02d°%02d.%d'"));
-
-
-// console.log(degreeToDm(35.593089849108054, "%02d°%02d.%d'"));
-// console.log(degreeToDms(35.593089849108054, "%02d°%02d'%02d.%d\""));
-// console.log(degreeToDms(0.000034293552498557, "%02d°%02d'%02d.%5d\""));
-
-
-// console.log(Format.stringToUnit("35.353535", Units.Degree));
-// console.log(Format.stringToUnit("35.353535", Units.DegreeMinuteSecond));

@@ -11,13 +11,13 @@ export function dmStringToDegree(value: string) {
 }
 
 export function angleToDegrees(value: string) {
-  const isNegative = /^-|[WSO]$/i.test(value);
   const isRumo = value.includes("NE") || value.includes("SE") || value.includes("SW") || value.includes("NW");
-  value = value.replace(/^\s+|\s+$/gm, '');
-  if (isNegative) value = value.replace(/^-|[WSO]$/i, '');
-  if (isRumo) value = value.replace(/[NSEW]+$/i, '');
-  let degrees = dmsStringToDegree(value);
-  if (isNegative) degrees *= -1;
+  const isNegative = /^-|[WSO]$/i.test(value);
+  let newValue = value;
+  newValue = newValue.replace(/^\s+|\s+$/gm, '');
+  newValue = newValue.replace(/^-|[NEWSO]+$/i, '');
+  let degrees = dmsStringToDegree(newValue);
+  if (isNegative && !isRumo) degrees *= -1;
   const values = /([NE]{2})?([SE]{2})?([SW]{2})?([NW]{2})?$/i.exec(value);
   const direction = values === null ? "" : values[0];
   switch (direction) {
@@ -67,14 +67,18 @@ export function degreesToRumoString(value: number, format: string) {
 }
 
 export function degreesToLatitudeString(value: number, format: string) {
-  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value);
-  const sign = (value < 0) ? "S" : "N";
+  let sign;
+  if (value < 0) { value *= -1; sign = "S"; }
+  else sign = "N";
+  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
   return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
 }
 
 export function degreesToLongitudeString(value: number, format: string) {
-  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value);
-  const sign = (value < 0) ? "W" : "E";
+  let sign;
+  if (value < 0) { value *= -1; sign = "W"; }
+  else sign = "E";
+  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
   return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
 }
 
@@ -272,7 +276,7 @@ export function degreesToDegreesString(value: number, format: string): string {
   }
 }
 
-export function degreesToMetersString(value: number, format: string): string {
+export function distanceToMetersString(value: number, format: string): string {
   try {
     return fmt(format, value);
   } catch (e) {

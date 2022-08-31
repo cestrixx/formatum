@@ -1,3 +1,5 @@
+import { sprintf } from "sprintf-js"
+
 export function fmt(format: string, ...args: any): string {
   const arr = Array.prototype.slice.call(args);
   let i = -1;
@@ -19,7 +21,7 @@ export function fmt(format: string, ...args: any): string {
       case 'p': val = parseFloat(arr[i]).toPrecision(exp); break;
       case 'e': val = parseFloat(arr[i]).toExponential(exp); break;
       case 'x': val = parseInt(arr[i]).toString(base ? base : 16); break;
-      case 'd': val = parseFloat(formatDigits(parseInt(arr[i], base ? base : 10).toPrecision(exp), p1).toString()).toFixed(0); break;
+      case 'd': val = parseFloat(parseInt(arr[i], base ? base : 10).toPrecision(exp).toString()).toFixed(0); break;
     }
     val = typeof (val) == 'object' ? JSON.stringify(val) : val.toString(base);
     const sz = parseInt(p1); /* padding size */
@@ -37,4 +39,8 @@ export function getNumberOfElementByFormat(format: string, index: number) {
   const numberOfElements = [];
   while ((parts = regex.exec(format)) !== null) numberOfElements.push(parts[3]);
   return numberOfElements.length > index ? parseInt(numberOfElements[index]) : 0;
+}
+
+export function ff(format: string, ...args: any[]) {
+  return sprintf(format, ...args);
 }

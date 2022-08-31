@@ -1,6 +1,6 @@
 {
   "name": "formatum",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "Funções de formatação",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
