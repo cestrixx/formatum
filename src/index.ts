@@ -35,6 +35,7 @@ export interface Formats {
 }
 
 export class Format {
+    static throwError = false;
     static radianFormat = "%.2f";
     static degreeFormat = "%.2f";
     static degreeMinuteFormat = "%02d°%.2f'";
@@ -42,6 +43,10 @@ export class Format {
     static rumoFormat = "%02d°%02d'%02d.%02d\"";
     static latlonFormat = "%02d°%02d'%02d.%02d\"";
     static metersFormat = "%.2f m";
+
+    static setThrowError(value = true): void {
+        this.throwError = value;
+    }
 
     static setFormats(formats: Formats): void {
         if (formats.radianFormat && formats.radianFormat.length > 0) this.radianFormat = formats.radianFormat;
@@ -85,12 +90,18 @@ export class Format {
         switch (typeof value) {
             case "number": value = value.toString(); break;
             case "string": break;
-            default: throw new Error("Tipo de valor invalido!");
+            default: {
+                if (this.throwError) throw new Error("Tipo de valor invalido!");
+                value = "0";
+            }
         }
         let distance;
         switch (inputUnit) {
-            case Units.Meters: distance = degreesStringToDegrees(value); break;
-            default: throw new Error("Unidade invalida!");
+            case Units.Meters: distance = degreesStringToDegrees(value, this.throwError); break;
+            default: {
+                if (this.throwError) throw new Error("Unidade invalida!");
+                distance = degreesStringToDegrees("0", this.throwError);
+            }
         }
         return distance;
     }
@@ -99,25 +110,31 @@ export class Format {
         switch (typeof value) {
             case "number": value = value.toString(); break;
             case "string": break;
-            default: throw new Error("Tipo de valor invalido!");
+            default: {
+                if (this.throwError) throw new Error("Tipo de valor invalido!");
+                value = "0";
+            }
         }
         let degrees: number;
         switch (inputUnit) {
-            case Units.Degree: degrees = degreesStringToDegrees(value); break;
-            case Units.DegreeMinute: degrees = angleToDegrees(value); break;
-            case Units.DegreeMinuteSecond: degrees = angleToDegrees(value); break;
-            case Units.Radian: degrees = radianStringToDegrees(value); break;
-            case Units.Rumo: degrees = angleToDegrees(value); break;
+            case Units.Degree: degrees = degreesStringToDegrees(value, this.throwError); break;
+            case Units.DegreeMinute: degrees = angleToDegrees(value, this.throwError); break;
+            case Units.DegreeMinuteSecond: degrees = angleToDegrees(value, this.throwError); break;
+            case Units.Radian: degrees = radianStringToDegrees(value, this.throwError); break;
+            case Units.Rumo: degrees = angleToDegrees(value, this.throwError); break;
             case Units.Meters: degrees = 0; break;
-            case Units.Latitude: degrees = angleToDegrees(value); break;
-            case Units.Longitude: degrees = angleToDegrees(value); break;
-            default: degrees = 0; break;
+            case Units.Latitude: degrees = angleToDegrees(value, this.throwError); break;
+            case Units.Longitude: degrees = angleToDegrees(value, this.throwError); break;
+            default: {
+                if (this.throwError) throw new Error("Unidade invalida!");
+                degrees = 0;
+            }
         }
         return degrees;
     }
 
     static angleToValue(angle: number, outputUnit: Units, outputFormat: string | null = null): string {
-        if (!outputFormat || outputFormat.length <= 0) {
+        if (!outputFormat || outputFormat.length === 0) {
             switch (outputUnit) {
                 case Units.Degree: outputFormat = this.degreeFormat; break;
                 case Units.DegreeMinute: outputFormat = this.degreeMinuteFormat; break;
@@ -127,25 +144,32 @@ export class Format {
                 case Units.Meters: outputFormat = this.metersFormat; break;
                 case Units.Latitude: outputFormat = this.latlonFormat; break;
                 case Units.Longitude: outputFormat = this.latlonFormat; break;
-                default: throw new Error("Unidade invalida!");
+                default: {
+                    if (this.throwError) throw new Error("Unidade invalida!");
+                    angle = 0;
+                    outputFormat = this.degreeFormat;
+                }
             }
         }
         let value: string
         switch (outputUnit) {
-            case Units.Degree: value = degreesToDegreesString(angle, outputFormat); break;
-            case Units.DegreeMinute: value = degreesToDegreeMinuteString(angle, outputFormat); break;
-            case Units.DegreeMinuteSecond: value = degreesToDegreeMinuteSecondString(angle, outputFormat); break;
-            case Units.Radian: value = degreesToRadianString(angle, outputFormat); break;
-            case Units.Rumo: value = degreesToRumoString(angle, outputFormat); break;
-            case Units.Latitude: value = degreesToLatitudeString(angle, outputFormat); break;
-            case Units.Longitude: value = degreesToLongitudeString(angle, outputFormat); break;
-            case Units.Meters: throw new Error("Unidade invalida!");
-            default: throw new Error("Unidade invalida!");
+            case Units.Degree: value = degreesToDegreesString(angle, outputFormat, this.throwError); break;
+            case Units.DegreeMinute: value = degreesToDegreeMinuteString(angle, outputFormat, this.throwError); break;
+            case Units.DegreeMinuteSecond: value = degreesToDegreeMinuteSecondString(angle, outputFormat, this.throwError); break;
+            case Units.Radian: value = degreesToRadianString(angle, outputFormat, this.throwError); break;
+            case Units.Rumo: value = degreesToRumoString(angle, outputFormat, this.throwError); break;
+            case Units.Latitude: value = degreesToLatitudeString(angle, outputFormat, this.throwError); break;
+            case Units.Longitude: value = degreesToLongitudeString(angle, outputFormat, this.throwError); break;
+            case Units.Meters:
+            default: {
+                if (this.throwError) throw new Error("Unidade invalida!");
+                value = degreesToDegreesString(angle, outputFormat, this.throwError);
+            }
         }
         return value;
     }
 
     static distanceToValue(distance: number, outputUnit: Units, outputFormat: string | null = null): string {
-        return distanceToMetersString(outputUnit === Units.Meters ? distance : 0, !outputFormat || outputFormat.length <= 0 ? this.metersFormat : outputFormat);
+        return distanceToMetersString(outputUnit === Units.Meters ? distance : 0, !outputFormat || outputFormat.length <= 0 ? this.metersFormat : outputFormat, this.throwError);
     }
 }

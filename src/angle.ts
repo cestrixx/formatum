@@ -1,22 +1,32 @@
-import { fmt, getNumberOfElementByFormat } from "./format"
+import { fmt, getNumberOfElementByFormat } from "./fmt"
 
-export function dmsStringToDegree(value: string) {
+export function dmsStringToDegree(value: string, throwError = false): number {
   const { degrees, minutes, seconds } = angleToDms(value);
-  return (degrees * 3600 + minutes * 60 + seconds) / 3600;
+  let result = (degrees * 3600 + minutes * 60 + seconds) / 3600;
+  if (isNaN(result)) {
+    if (throwError) throw new Error("Valor invalido!")
+    result = 0;
+  }
+  return result;
 }
 
-export function dmStringToDegree(value: string) {
+export function dmStringToDegree(value: string, throwError = false): number {
   const { degrees, minutes } = angleToDm(value);
-  return (degrees * 3600 + minutes * 60) / 3600;
+  let result = (degrees * 3600 + minutes * 60) / 3600;
+  if (isNaN(result)) {
+    if (throwError) throw new Error("Valor invalido!")
+    result = 0;
+  }
+  return result;
 }
 
-export function angleToDegrees(value: string) {
+export function angleToDegrees(value: string, throwError = false) {
   const isRumo = value.includes("NE") || value.includes("SE") || value.includes("SW") || value.includes("NW");
   const isNegative = /^-|[WSO]$/i.test(value);
   let newValue = value;
   newValue = newValue.replace(/^\s+|\s+$/gm, '');
   newValue = newValue.replace(/^-|[NEWSO]+$/i, '');
-  let degrees = dmsStringToDegree(newValue);
+  let degrees = dmsStringToDegree(newValue, throwError);
   if (isNegative && !isRumo) degrees *= -1;
   const values = /([NE]{2})?([SE]{2})?([SW]{2})?([NW]{2})?$/i.exec(value);
   const direction = values === null ? "" : values[0];
@@ -29,17 +39,27 @@ export function angleToDegrees(value: string) {
   return degrees;
 }
 
-export function degreesToDegreeMinuteSecondString(value: number, format: string) {
-  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
-  return fmt(format, degrees, minutes, seconds, milliseconds);
+export function degreesToDegreeMinuteSecondString(value: number, format: string, throwError = false) {
+  try {
+    const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
+    return fmt(format, degrees, minutes, seconds, milliseconds);
+  } catch (e) {
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0, 0, 0);
+  }
 }
 
-export function degreesToDegreeMinuteString(value: number, format: string) {
-  const { degrees, minutes, milliseconds } = degreesToDm(value);
-  return fmt(format, degrees, minutes, milliseconds);
+export function degreesToDegreeMinuteString(value: number, format: string, throwError = false) {
+  try {
+    const { degrees, minutes, milliseconds } = degreesToDm(value);
+    return fmt(format, degrees, minutes, milliseconds);
+  } catch (e) {
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0, 0, 0);
+  }
 }
 
-export function degreesToRumoString(value: number, format: string) {
+export function degreesToRumoString(value: number, format: string, throwError = false) {
   const PI = 180;
   const TWOPI = 360;
   const PIOVER2 = 90
@@ -50,36 +70,46 @@ export function degreesToRumoString(value: number, format: string) {
   if (value > PI) {
     if (value > PIOVER2 * 3) {
       value = TWOPI - value;
-      resultValue = degreesToDegreeMinuteSecondString(value, format) + " NW";
+      resultValue = degreesToDegreeMinuteSecondString(value, format, throwError) + " NW";
     } else {
       value -= PI;
-      resultValue = degreesToDegreeMinuteSecondString(value, format) + " SW";
+      resultValue = degreesToDegreeMinuteSecondString(value, format, throwError) + " SW";
     }
   } else {
     if (value > PIOVER2) {
       value = PI - value;
-      resultValue = degreesToDegreeMinuteSecondString(value, format) + " SE";
+      resultValue = degreesToDegreeMinuteSecondString(value, format, throwError) + " SE";
     } else {
-      resultValue = degreesToDegreeMinuteSecondString(value, format) + " NE";
+      resultValue = degreesToDegreeMinuteSecondString(value, format, throwError) + " NE";
     }
   }
   return resultValue;
 }
 
-export function degreesToLatitudeString(value: number, format: string) {
+export function degreesToLatitudeString(value: number, format: string, throwError = false): string {
   let sign;
   if (value < 0) { value *= -1; sign = "S"; }
   else sign = "N";
-  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
-  return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
+  try {
+    const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
+    return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
+  } catch (e) {
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0, 0, 0, 0) + ` ${sign}`;
+  }
 }
 
-export function degreesToLongitudeString(value: number, format: string) {
+export function degreesToLongitudeString(value: number, format: string, throwError = false): string {
   let sign;
   if (value < 0) { value *= -1; sign = "W"; }
   else sign = "E";
-  const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
-  return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
+  try {
+    const { degrees, minutes, seconds, milliseconds } = degreesToDms(value, getNumberOfElementByFormat(format, 3));
+    return fmt(format, degrees, minutes, seconds, milliseconds) + ` ${sign}`;
+  } catch (e) {
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0, 0, 0, 0) + ` ${sign}`;
+  }
 }
 
 export function angleToDms(value: string) {
@@ -232,21 +262,25 @@ export function degreesToDm(value: number) {
 //   return { degrees, minutes, seconds: quotientSeconds, milliseconds: remainderSeconds };
 // }
 
-export function radianStringToDegrees(value: string): number {
+export function radianStringToDegrees(value: string, throwError = false): number {
   const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace(/^-/, '');
   const values = /^([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
-  if (values === null)
-    throw new Error("Valor invalido!")
+  if (values === null) {
+    if (throwError) throw new Error("Valor invalido!")
+    return 0;
+  }
   let radian = parseFloat(values[0])
   if (/^-|[WS]$/i.test(value)) radian = -radian;
   return radianToDegrees(radian);
 }
 
-export function degreesStringToDegrees(value: string): number {
+export function degreesStringToDegrees(value: string, throwError = false): number {
   const realValue = value.replace(/^\s+|\s+$/gm, '').replace(",", ".").replace("°", "").replace(/^-/, '');
   const values = /^([0-9]+\.?[0-9]*|\.[0-9]+)\D*$/.exec(realValue);
-  if (values === null)
-    throw new Error("Valor invalido!")
+  if (values === null) {
+    if (throwError) throw new Error("Valor invalido!")
+    return 0;
+  }
   let degree = parseFloat(values[0])
   if (/^-|[WS]$/i.test(value)) degree = -degree;
   return degree;
@@ -260,27 +294,30 @@ function radianToDegrees(radians: number): number {
   return radians * 180 / Math.PI;
 }
 
-export function degreesToRadianString(value: number, format: string): string {
+export function degreesToRadianString(value: number, format: string, throwError = false): string {
   try {
     return fmt(format, degreesToRadian(value));
   } catch (e) {
-    throw new Error("Formato invalido!")
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0);
   }
 }
 
-export function degreesToDegreesString(value: number, format: string): string {
+export function degreesToDegreesString(value: number, format: string, throwError = false): string {
   try {
     return fmt(format, value);
   } catch (e) {
-    throw new Error("Formato invalido!")
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0);
   }
 }
 
-export function distanceToMetersString(value: number, format: string): string {
+export function distanceToMetersString(value: number, format: string, throwError = false): string {
   try {
     return fmt(format, value);
   } catch (e) {
-    throw new Error("Formato invalido!")
+    if (throwError) throw new Error("Formato invalido!");
+    return fmt(format, 0);
   }
 }
 
